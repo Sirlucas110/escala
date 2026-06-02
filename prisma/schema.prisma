@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Perfil {
+  ADMIN
+  DIRETOR
+  MEMBRO
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  senha    String
+
+  membroId Int    @unique        // FK para Membro
+  membro   Membro @relation(fields: [membroId], references: [id])
+}
+
+model Membro {
+  id      Int    @id @default(autoincrement())
+  nome    String
+  email   String @unique
+  perfil  Perfil
+
+  user           User?         // Login vinculado
+  setorDirigido  Setor?
+  setores        MembroSetor[]
+  escalasItems   EscalaItem[]
+}
+
+model Setor {
+  id         Int    @id @default(autoincrement())
+  nome       String
+
+  diretorId  Int?   @unique     // FK para Membro
+  diretor    Membro? @relation(fields: [diretorId], references: [id])
+
+  // Relações
+  membros    MembroSetor[]
+  escalas    Escala[]
+}
+
+model MembroSetor {
+  membroId    Int
+  setorId     Int
+  instrumento String?   // Só preenchido se o setor for Banda
+
+  membro  Membro @relation(fields: [membroId], references: [id])
+  setor   Setor  @relation(fields: [setorId], references: [id])
+
+  @@id([membroId, setorId])  // Chave composta (um membro por setor)
+}
+
+model Escala {
+  id      Int      @id @default(autoincrement())
+  data    DateTime // Data do sábado
+
+  setorId Int
+  setor   Setor @relation(fields: [setorId], references: [id])
+
+  // Relações
+  itens   EscalaItem[]
+  musicas String[]
+}
+
+model EscalaItem {
+  escalaId    Int
+  membroId    Int
+  instrumento String?   // Só preenchido se o setor for Banda
+
+  escala  Escala @relation(fields: [escalaId], references: [id])
+  membro  Membro @relation(fields: [membroId], references: [id])
+
+  @@id([escalaId, membroId])
+}
+
