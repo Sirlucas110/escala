@@ -34,6 +34,10 @@ const config: runtime.GetPrismaClientConfig = {
         "fromEnvVar": null,
         "value": "windows",
         "native": true
+      },
+      {
+        "fromEnvVar": null,
+        "value": "rhel-openssl-3.0.x"
       }
     ],
     "previewFeatures": [],
@@ -47,6 +51,7 @@ const config: runtime.GetPrismaClientConfig = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -55,8 +60,8 @@ const config: runtime.GetPrismaClientConfig = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../app/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum Perfil {\n  ADMIN\n  DIRETOR\n  MEMBRO\n}\n\nmodel User {\n  id    Int    @id @default(autoincrement())\n  email String @unique\n  senha String\n\n  membroId Int    @unique // FK para Membro\n  membro   Membro @relation(fields: [membroId], references: [id])\n}\n\nmodel Membro {\n  id     Int    @id @default(autoincrement())\n  nome   String\n  email  String @unique\n  perfil Perfil\n\n  user          User? // Login vinculado\n  setorDirigido Setor?\n  setores       MembroSetor[]\n  escalasItems  EscalaItem[]\n}\n\nmodel Setor {\n  id   Int    @id @default(autoincrement())\n  nome String\n\n  diretorId Int?    @unique // FK para Membro\n  diretor   Membro? @relation(fields: [diretorId], references: [id])\n\n  // Relações\n  membros MembroSetor[]\n  escalas Escala[]\n}\n\nmodel MembroSetor {\n  membroId    Int\n  setorId     Int\n  instrumento String? // Só preenchido se o setor for Banda\n\n  membro Membro @relation(fields: [membroId], references: [id])\n  setor  Setor  @relation(fields: [setorId], references: [id])\n\n  @@id([membroId, setorId]) // Chave composta (um membro por setor)\n}\n\nmodel Escala {\n  id   Int      @id @default(autoincrement())\n  data DateTime // Data do sábado\n\n  setorId Int\n  setor   Setor @relation(fields: [setorId], references: [id])\n\n  // Relações\n  itens   EscalaItem[]\n  musicas String[]\n}\n\nmodel EscalaItem {\n  escalaId    Int\n  membroId    Int\n  instrumento String? // Só preenchido se o setor for Banda\n\n  escala Escala @relation(fields: [escalaId], references: [id])\n  membro Membro @relation(fields: [membroId], references: [id])\n\n  @@id([escalaId, membroId])\n}\n",
-  "inlineSchemaHash": "21b1822b0ba23a9d43a49b170012182e4baba616aff6ff9a977fdc1844f250d9",
+  "inlineSchema": "generator client {\n  provider      = \"prisma-client\"\n  output        = \"../app/generated/prisma\"\n  binaryTargets = [\"native\", \"rhel-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum Perfil {\n  ADMIN\n  DIRETOR\n  MEMBRO\n}\n\nmodel User {\n  id    Int    @id @default(autoincrement())\n  email String @unique\n  senha String\n\n  membroId Int    @unique // FK para Membro\n  membro   Membro @relation(fields: [membroId], references: [id])\n}\n\nmodel Membro {\n  id     Int    @id @default(autoincrement())\n  nome   String\n  email  String @unique\n  perfil Perfil\n\n  user          User? // Login vinculado\n  setorDirigido Setor?\n  setores       MembroSetor[]\n  escalasItems  EscalaItem[]\n}\n\nmodel Setor {\n  id   Int    @id @default(autoincrement())\n  nome String\n\n  diretorId Int?    @unique // FK para Membro\n  diretor   Membro? @relation(fields: [diretorId], references: [id])\n\n  // Relações\n  membros MembroSetor[]\n  escalas Escala[]\n}\n\nmodel MembroSetor {\n  membroId    Int\n  setorId     Int\n  instrumento String? // Só preenchido se o setor for Banda\n\n  membro Membro @relation(fields: [membroId], references: [id])\n  setor  Setor  @relation(fields: [setorId], references: [id])\n\n  @@id([membroId, setorId]) // Chave composta (um membro por setor)\n}\n\nmodel Escala {\n  id   Int      @id @default(autoincrement())\n  data DateTime // Data do sábado\n\n  setorId Int\n  setor   Setor @relation(fields: [setorId], references: [id])\n\n  // Relações\n  itens   EscalaItem[]\n  musicas String[]\n}\n\nmodel EscalaItem {\n  escalaId    Int\n  membroId    Int\n  instrumento String? // Só preenchido se o setor for Banda\n\n  escala Escala @relation(fields: [escalaId], references: [id])\n  membro Membro @relation(fields: [membroId], references: [id])\n\n  @@id([escalaId, membroId])\n}\n",
+  "inlineSchemaHash": "afc3dd1ad68f422d0b3f73f27e56e05eb634c26ad06609714d18000100454539",
   "copyEngine": true,
   "runtimeDataModel": {
     "models": {},
