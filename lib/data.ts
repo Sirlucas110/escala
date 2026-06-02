@@ -13,8 +13,9 @@ export async function fetchTotalPaginasMembros(query: string) {
       },
     });
     return Math.ceil(total / ITEMS_PER_PAGE);
-  } catch {
-    throw new Error("Falha ao contar membros.");
+  } catch (error) {
+    console.error("ERRO_COUNT_MEMBROS:", error);
+    throw error;
   }
 }
 
@@ -32,8 +33,8 @@ export async function fetchMembros(query: string, currentPage: number) {
     });
     return membros;
   } catch (error) {
-    console.error("Erro ao buscar membros");
-    throw new Error("Falha ao buscar membros")
+    console.error("ERRO_FETCH_MEMBROS:", error);
+    throw error;
   }
 }
 
@@ -89,7 +90,6 @@ export async function fetchSetor(query: string, currentPage: number) {
   }
 }
 
-
 export async function fetchTotalPaginasSetores(query: string) {
   try {
     const total = await prisma.setor.count({
@@ -109,7 +109,6 @@ export async function fetchTotalPaginasSetores(query: string) {
     throw new Error("Falha ao contar setores.");
   }
 }
-
 
 export async function fetchMembrosPorSetor(setorId: number) {
   return prisma.membroSetor.findMany({
